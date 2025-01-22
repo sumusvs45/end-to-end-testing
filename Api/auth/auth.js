@@ -4,7 +4,7 @@ import userModel from "../models/userModel.js";
 const auth = async (req, res, next) => {
   const token = req.header("auth");
   if (!token) {
-    return res.status(401).json({ success: false, message: "Please login" });
+    return res.status(401).json({ success: false, message: "Please login" }); //// Log token for debugging
   }
 
   try {
