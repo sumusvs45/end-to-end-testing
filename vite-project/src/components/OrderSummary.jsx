@@ -3,6 +3,7 @@ import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/shopContext";
+import { toast } from "react-toastify";
 
 function OrderSummary({ token }) {
   const { cart, totalPrice, setCart } = useContext(ShopContext);
@@ -147,7 +148,7 @@ function OrderSummary({ token }) {
           );
 
           if (res?.data?.success) {
-            alert("Payment successful");
+            alert("Payment successful, Order placed sucessfully");
             navigate('/feedback');
             setCart([]);
           } else {

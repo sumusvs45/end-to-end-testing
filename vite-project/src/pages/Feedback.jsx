@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/rules-of-hooks */
-import  { useState } from 'react';
+import { useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
-const Feedback = ({token}) => {
+const Feedback = ({ token }) => {
   const colors = {
     orange: '#ffba5a',
     grey: '#a9a9a9',
@@ -14,7 +14,7 @@ const Feedback = ({token}) => {
   const [currentValue, setCurrentValue] = useState(0); // State for selected stars
   const [hoverValue, setHoverValue] = useState(undefined); // State for hovered stars
   const [message, setMessage] = useState(""); // State for feedback message
-  const navigate=useNavigate('')
+  const navigate = useNavigate();
 
   const handleClick = (value) => {
     setCurrentValue(value);
@@ -37,13 +37,13 @@ const Feedback = ({token}) => {
       body: JSON.stringify({ stars: currentValue, message }),
       headers: {
         "Content-Type": "application/json",
-        "Auth":token
+        "Auth": token
       },
     });
 
     if (result.ok) {
       alert("Feedback submitted successfully!");
-      navigate('/')
+      navigate('/');
     } else {
       alert("Failed to submit feedback.");
     }
@@ -55,17 +55,16 @@ const Feedback = ({token}) => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Feedback Form</h2>
-      <div style={styles.stars}>
+    <div className="flex flex-col items-center justify-center bg-gray-50 min-h-screen py-6 px-4">
+      <h2 className="text-2xl font-semibold mb-4 text-center">Thank you! Order Placed Successfully</h2>
+      <h2 className="text-xl font-bold text-gray-800 mb-6">Feedback Form</h2>
+
+      <div className="flex space-x-2 mb-6">
         {starsArray.map((_, index) => (
           <FaStar
             key={index}
             size={30}
-            style={{
-              marginRight: 10,
-              cursor: 'pointer',
-            }}
+            className="cursor-pointer"
             color={(hoverValue || currentValue) > index ? colors.orange : colors.grey}
             onClick={() => handleClick(index + 1)}
             onMouseOver={() => handleMouseOver(index + 1)}
@@ -73,57 +72,22 @@ const Feedback = ({token}) => {
           />
         ))}
       </div>
+
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="What's your feedback?"
-        style={styles.textarea}
+        className="w-full max-w-md p-3 border border-gray-300 rounded-lg shadow-sm mb-6 resize-none min-h-[100px] text-gray-700"
       />
-      <button style={styles.button} onClick={handleSubmit}>
-        Submit
+
+      <button
+        onClick={handleSubmit}
+        className="w-full max-w-md py-3 px-4 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+      >
+        Submit Feedback
       </button>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-  },
-  heading: {
-    fontSize: '24px',
-    marginBottom: '20px',
-  },
-  stars: {
-    marginBottom: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  textarea: {
-    border: '1px solid #a9a9a9',
-    borderRadius: 5,
-    width: 300,
-    margin: '20px 0',
-    minHeight: 100,
-    padding: 10,
-    fontSize: '16px',
-  },
-  button: {
-    border: 'none',
-    borderRadius: 5,
-    backgroundColor: '#ffba5a',
-    color: 'white',
-    width: 300,
-    minHeight: 50,
-    cursor: 'pointer',
-    fontSize: '18px',
-    fontWeight: 'bold',
-  },
 };
 
 export default Feedback;

@@ -62,3 +62,29 @@ export const feedback = async (req, res) => {
     res.status(500).send({ message: 'Error saving feedback', error });
   }
 }
+
+//remove cart
+// Assuming you are using Express.js
+
+// Backend: Order Cancel API (Express.js)
+
+export const orderCancel = (req, res) => {
+  const { orderId } = req.body;
+
+  // Ensure orderId is a valid string
+  if (typeof orderId !== 'string' || orderId.trim() === '') {
+    return res.status(400).json({ success: false, message: 'Invalid Order ID' });
+  }
+
+  // Query the database using the custom orderId (not MongoDB _id)
+  orderModel.findOneAndDelete({ orderId: orderId })
+    .then((deletedOrder) => {
+      if (!deletedOrder) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+      res.status(200).json({ success: true, message: 'Order deleted successfully' });
+    })
+    .catch((error) => {
+      res.status(500).json({ success: false, message: error.message });
+    });
+};

@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import "../App.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
@@ -8,12 +7,11 @@ const ContactUs = ({ token }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const navigate=useNavigate('')
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Post data to your own backend API
     try {
       let result = await fetch('http://localhost:4000/v1/ecommerce/api/contact-us', {
         method: 'POST',
@@ -22,15 +20,13 @@ const ContactUs = ({ token }) => {
           "Content-Type": "application/json",
           "Auth": token,
         },
-        mode:'cors'
+        mode: 'cors'
       });
 
-      // Check if the response is not ok
       if (!result.ok) {
         throw new Error('Failed to send message to the backend');
       }
 
-      // Parse the result (ensure it's valid JSON)
       result = await result.json();
 
       if (!result.success) {
@@ -39,7 +35,6 @@ const ContactUs = ({ token }) => {
 
       localStorage.setItem("user", JSON.stringify(result));
 
-      // Web3Forms API payload
       const payload = {
         name,
         email,
@@ -47,14 +42,13 @@ const ContactUs = ({ token }) => {
         access_key: "50363ece-319e-43dd-82d3-a3f9f120730d",
       };
 
-      // Send data to Web3Forms API
       const res = await fetch("http://localhost:4000/v1/ecommerce/api/contact-us", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-        mode:'cors'
+        mode: 'cors'
       });
 
       if (!res.ok) {
@@ -78,7 +72,7 @@ const ContactUs = ({ token }) => {
         setName("");
         setEmail("");
         setMessage("");
-        navigate('/')
+        navigate('/');
       } else {
         Swal.fire({
           title: "Error!",
@@ -98,49 +92,58 @@ const ContactUs = ({ token }) => {
   };
 
   return (
-    <section className="Contact">
-      <form className="contact-form" onSubmit={handleSubmit}>
-        <h2>Contact Form</h2>
-        <div className="input-box">
-          <label>Full Name</label>
-          <input
-            type="text"
-            className="field"
-            placeholder="Enter your name"
-            name="name"
-            pattern="[A-Z a-z \s @]+"
-            title="specai charters are not allowed"
-            required
-            value={name}
-           
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="input-box">
-          <label>Email Address</label>
-          <input
-            type="email"
-            className="field"
-            placeholder="Enter your Email"
-            name="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="input-box">
-          <label>Your Message</label>
-          <textarea
-            name="message"
-            className="field mes"
-            placeholder="Enter your message"
-            required
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          ></textarea>
-        </div>
-        <button className="contact-button" type="submit">Send Message</button>
-      </form>
+    <section className="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-center mb-6">Contact Us</h2>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your name"
+              name="name"
+              pattern="[A-Za-z\s]+"
+              title="Special characters are not allowed"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Email Address</label>
+            <input
+              type="email"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your email"
+              name="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Your Message</label>
+            <textarea
+              name="message"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your message"
+              required
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Send Message
+          </button>
+        </form>
+      </div>
     </section>
   );
 };

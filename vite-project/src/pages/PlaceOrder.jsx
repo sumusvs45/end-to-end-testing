@@ -1,33 +1,29 @@
-/* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
-import axios from "axios";
+/* Frontend: Order Cancel Button (React) */
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Orders = ({ token }) => {
-  const [orders, setOrders] = useState([]); // Store fetched orders
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all orders
   const fetchAllOrders = async () => {
-    //fetching the orders
     if (!token) {
       console.error("Token is missing");
       return;
     }
 
     try {
-      // getting the orders based on user id
-      const response = await axios.get("http://localhost:4000/api/v1/orders", {
+      const response = await axios.get('http://localhost:4000/api/v1/orders', {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           auth: token,
         },
       });
 
       if (response.data.success) {
         const ordersData = response.data.orders;
-
-        // Sort orders by date in descending order (most recent first)
         ordersData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const allOrders = ordersData.flatMap((order) =>
@@ -37,18 +33,55 @@ const Orders = ({ token }) => {
             userId: order.userId,
             orderId: order.orderId,
             date: order.date,
-            address: order.address, // Include address in the item to show with the order
+            address: order.address,
           }))
         );
 
-        setOrders(allOrders); // Set items
+        setOrders(allOrders);
       } else {
         console.error("Failed to fetch orders");
       }
     } catch (error) {
       console.error("An error occurred while fetching orders:", error.message);
     } finally {
-      setLoading(false); // Set loading to false after API call
+      setLoading(false);
+    }
+  };
+
+  // Cancel order function
+  const cancelOrder = async (orderId) => {
+    if (!token) {
+      console.error("Token is missing");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:4000/api/v1/order/cancel',
+        { orderId }, // Send orderId to backend
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Auth: token,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        // Update order status locally after cancel
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.orderId === orderId
+              ? { ...order, status: 'Cancelled' }
+              : order
+          )
+        );
+        alert('Order cancelled successfully!');
+      } else {
+        console.error('Failed to cancel order');
+      }
+    } catch (error) {
+      console.error('An error occurred while canceling the order:', error.message);
     }
   };
 
@@ -60,12 +93,9 @@ const Orders = ({ token }) => {
     <div className="max-w-7xl mx-auto p-6">
       <h3 className="text-3xl font-semibold mb-6">Order Page</h3>
       {loading ? (
-        <>
-          <div className="flex justify-center items-center">
-            <div className="animate-bounce border-t-4 border-8 w-16 h-16 rounded-full border-black"></div>
-          </div>
-          <h1 className="text-center text-2xl font-bold mt-2">Loading...</h1>
-        </>
+        <div className="flex justify-center items-center">
+          <div className="animate-bounce border-t-4 border-8 w-16 h-16 rounded-full border-black"></div>
+        </div>
       ) : orders.length === 0 ? (
         <p className="text-center text-lg text-gray-600">No orders found</p>
       ) : (
@@ -73,31 +103,19 @@ const Orders = ({ token }) => {
           <table className="min-w-full text-left border-collapse">
             <thead className="bg-gray-200">
               <tr>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">
-                  Image
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-600">
-                  Address
-                </th>
+                <th className="px-6 py-3 text-sm font-medium text-gray-600">Image</th>
+                <th className="px-6 py-3 text-sm font-medium text-gray-600">Items</th>
+                <th className="px-6 py-3 text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-sm font-medium text-gray-600">Address</th>
+                <th className="px-6 py-3 text-sm font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody>
-              {/* mapping the orders  */}
               {orders.map((order, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <img
-                      src={
-                        order.imgSrc
-                          ? `http://localhost:4000/images/${order.imgSrc}`
-                          : `${order.imgSrc}`
-                      } // Fallback image
+                      src={order.imgSrc ? `http://localhost:4000/images/${order.imgSrc}` : `${order.imgSrc}`}
                       className="w-[140px] h-[140px] object-cover rounded-lg"
                       alt={order.name}
                     />
@@ -116,6 +134,8 @@ const Orders = ({ token }) => {
                           ? "bg-orange-500"
                           : order.status === "Out for delivery"
                           ? "bg-blue-500"
+                          : order.status === "Cancelled"
+                          ? "bg-gray-500"
                           : "bg-gray-300"
                       }`}
                     >
@@ -123,21 +143,27 @@ const Orders = ({ token }) => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    {/* displaying the address based on condition  */}
                     {order.address ? (
                       <div>
                         <p className="font-semibold">
                           {order.address.firstName} {order.address.lastName}
                         </p>
                         <p>
-                          {order.address.street}, {order.address.city},{" "}
-                          {order.address.zipCode}
+                          {order.address.street}, {order.address.city}, {order.address.zipCode}
                         </p>
                       </div>
                     ) : (
-                      <span className="text-gray-500">
-                        No address available
-                      </span>
+                      <span className="text-gray-500">No address available</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {order.status !== "Cancelled" && (
+                      <button
+                        onClick={() => cancelOrder(order.orderId)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                      >
+                        Cancel Order
+                      </button>
                     )}
                   </td>
                 </tr>
