@@ -22,6 +22,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Auth"],
 }));
+//dot env config
 
 configDotenv()
 
